@@ -1,0 +1,24 @@
+language: go
+
+go:
+  - 1.13.x
+
+go_import_path: github.com/cvila84/elevator
+
+env:
+  global:
+    - ARTIFACT_NAME=elevator-windows-amd64.exe
+
+script:
+  - go get github.com/akavel/rsrc
+  - rsrc -manifest scripts\elevator.manifest -o cmd\elevator\elevator.syso
+  - cd cmd/elevator
+  - GOOS=windows go build -o bin/$ARTIFACT_NAME
+
+deploy:
+  - provider: releases
+    api_key: $GITHUB_API_KEY
+    file: bin/$ARTIFACT_NAME
+    skip_cleanup: true # Important, otherwise the build output would be purged.
+    on:
+      tags: true # The deployment happens only if the commit has a tag.
